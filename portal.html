@@ -67,7 +67,15 @@ footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:1rem}
 footer p{max-width:620px}
 .wa-float{position:fixed;right:20px;bottom:20px;z-index:60;width:58px;height:58px;border-radius:50%;background:#25D366;display:grid;place-items:center;box-shadow:0 10px 30px rgba(0,0,0,.35)}
 .wa-float svg{width:30px;height:30px;fill:#fff}
-@media(max-width:900px){.panels,.courses{grid-template-columns:1fr}.steps{grid-template-columns:1fr 1fr}}
+.tgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-top:2rem}
+.topic{display:flex;align-items:center;gap:16px;background:var(--card);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:16px 20px;transition:border-color .2s,transform .2s}
+a.topic:hover{border-color:var(--gold);transform:translateY(-2px)}
+.topic .num{width:44px;height:44px;flex:none;border-radius:12px;background:rgba(214,178,84,.12);border:1px solid var(--line);color:var(--gold);font-weight:900;display:grid;place-items:center}
+.topic b{display:block;font-size:1rem}
+.topic small{color:var(--muted);font-size:.82rem}
+.topic .go{margin-left:auto;color:var(--gold-l);font-weight:700;font-size:.88rem;white-space:nowrap}
+.topic.soon{opacity:.55}
+@media(max-width:900px){.panels,.courses,.tgrid{grid-template-columns:1fr}.steps{grid-template-columns:1fr 1fr}}
 @media(max-width:520px){.steps{grid-template-columns:1fr}.nav .back span{display:none}}
 </style>
 </head>
@@ -88,9 +96,9 @@ footer p{max-width:620px}
       <div class="panel gold">
         <h3>Already enrolled?</h3>
         <p>Sign in to YouTube with the Gmail address you enrolled with, then open your lectures.</p>
-        <a class="btn btn-gold" id="lectures" href="#" target="_blank" rel="noopener">
+        <a class="btn btn-gold" id="lectures" href="#lectures-list">
           <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>Go to my lectures</a>
-        <div class="note" id="lnote">Videos only play for the Gmail address you enrolled with.</div>
+        <div class="note">Videos only play for the Gmail address you enrolled with.</div>
       </div>
       <div class="panel">
         <h3>New student?</h3>
@@ -98,6 +106,15 @@ footer p{max-width:620px}
         <a class="btn btn-ghost" href="#enrol">See how to enrol</a>
       </div>
     </div>
+  </div>
+</section>
+
+<section id="lectures-list">
+  <div class="wrap">
+    <div class="kicker">CFA Level I · Enrolled students</div>
+    <h2>Your lectures by topic</h2>
+    <p class="lead">Open a topic while signed in to YouTube with your enrolled Gmail. Topic weights are from the 2027 Level I curriculum.</p>
+    <div class="tgrid" id="tgrid"></div>
   </div>
 </section>
 
@@ -148,15 +165,28 @@ footer p{max-width:620px}
 <a class="wa-float" href="https://wa.me/923338416929" target="_blank" rel="noopener" aria-label="Chat on WhatsApp"><svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm5.3 14.1c-.2.6-1.3 1.2-1.8 1.3-.5.1-1 .1-3.3-.8-2.8-1.1-4.5-4-4.7-4.2-.1-.2-1.1-1.5-1.1-2.9s.7-2.1 1-2.4c.3-.3.6-.3.8-.3h.6c.2 0 .4 0 .6.5l.9 2.1c.1.2.1.4 0 .6l-.4.6-.4.4c-.1.1-.3.3-.1.6.2.3.8 1.4 1.8 2.2 1.2 1.1 2.2 1.4 2.5 1.6.3.1.5.1.7-.1l.9-1.1c.2-.3.4-.2.7-.1l2 .9c.3.2.5.2.6.4.1.1.1.7-.1 1.3z"/></svg></a>
 
 <script>
-// Paste the unlisted lectures playlist link here:
-var LECTURES_URL = "";
+// CFA Level I topic playlists (unlisted). Fill each url with https://www.youtube.com/playlist?list=ID
+var TOPICS = [
+  {n:"01", t:"Ethical and Professional Standards", w:"10–15%", url:""},
+  {n:"02", t:"Quantitative Methods", w:"11–14%", url:""},
+  {n:"03", t:"Economics", w:"6–9%", url:""},
+  {n:"04", t:"Financial Statement Analysis", w:"11–14%", url:""},
+  {n:"05", t:"Corporate Issuers", w:"6–9%", url:""},
+  {n:"06", t:"Equity Investments", w:"11–14%", url:""},
+  {n:"07", t:"Fixed Income", w:"11–14%", url:""},
+  {n:"08", t:"Derivatives", w:"6–9%", url:""},
+  {n:"09", t:"Alternative Investments", w:"6–9%", url:""},
+  {n:"10", t:"Portfolio Construction", w:"8–12%", url:""}
+];
 document.getElementById('yr').textContent = new Date().getFullYear();
-var b = document.getElementById('lectures');
-if (LECTURES_URL) { b.href = LECTURES_URL; }
-else {
-  b.href = "https://wa.me/923338416929?text=Hi%20Ahmed%2C%20I%27m%20enrolled.%20Please%20send%20my%20lecture%20link.";
-  document.getElementById('lnote').textContent = "Your lecture link is being set up. Tap above to get it on WhatsApp.";
-}
+var g = document.getElementById('tgrid');
+TOPICS.forEach(function (x) {
+  var el = document.createElement(x.url ? 'a' : 'div');
+  el.className = 'topic' + (x.url ? '' : ' soon');
+  if (x.url) { el.href = x.url; el.target = '_blank'; el.rel = 'noopener'; }
+  el.innerHTML = '<span class="num">' + x.n + '</span><span><b>' + x.t + '</b><small>Exam weight ' + x.w + '</small></span><span class="go">' + (x.url ? 'Watch →' : 'Coming soon') + '</span>';
+  g.appendChild(el);
+});
 </script>
 </body>
 </html>
